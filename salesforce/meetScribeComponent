@@ -1,0 +1,249 @@
+<template>
+    <div class="ms-wrapper">
+
+        <!-- Header -->
+        <div class="ms-header">
+            <div class="ms-header__inner">
+                <img src={micImgUrl} class="ms-header__icon" alt="mic">
+                <span class="ms-header__title">{label.AppTitle}</span>
+            </div>
+        </div>
+
+        <div class="ms-body">
+
+            <!-- Pre-recording / Setup screen -->
+            <template if:false={isSummaryDone}>
+                <div class="ms-card ms-card--setup">
+                    <div class="ms-card__heading">{label.SetupTitle}</div>
+                    <div class="ms-card__subtext">{label.SetupTagLine}</div>
+
+                    <!-- Recording in progress -->
+                    <template lwc:if={isRecordingStarted}>
+                        <div class="ms-stop-btn" onclick={stopRecording}>{label.StopMeetingBtn}</div>
+                        <div class="ms-wave-bar__wrap">
+                            <template lwc:if={isSpeaking}>
+                                <div class="ms-wave-container">
+                                    <template for:each={bars} for:item="bar">
+                                        <span key={bar.id} class="ms-wave-bar" style={bar.style}></span>
+                                    </template>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+
+                    <!-- Setup form (before recording) -->
+                    <template lwc:else>
+                        <br/>
+                        <div class="ms-divider"></div>
+
+                        <template if:false={isProcessing}>
+
+                            <!-- Participant lookup -->
+                            <div class="ms-lookup">
+                                <div class="ms-lookup__label">
+                                    <lightning-icon icon-name="standard:people" size="x-small"></lightning-icon>
+                                    <span>Select Participant</span>
+                                </div>
+                                <div class="ms-lookup__container">
+                                    <template lwc:if={hasSelectedRecords}>
+                                        <template for:each={selectedRecords} for:item="record">
+                                            <div key={record.id} class="ms-selected-record">
+                                                <div class="ms-selected-record__content">
+                                                    <div class="ms-selected-record__icon">
+                                                        <lightning-icon icon-name={record.icon} size="small"></lightning-icon>
+                                                    </div>
+                                                    <div class="ms-selected-record__info">
+                                                        <span class="ms-selected-record__name">{record.title}</span>
+                                                        <span class="ms-selected-record__type">{record.sObjectType}</span>
+                                                    </div>
+                                                </div>
+                                                <button class="ms-selected-record__clear"
+                                                    name={record.id}
+                                                    onclick={handleRemoveSelected}
+                                                    title="Remove">
+                                                    <lightning-icon icon-name="utility:close" size="x-small" alternative-text="Remove"></lightning-icon>
+                                                </button>
+                                            </div>
+                                        </template>
+                                    </template>
+                                    <template lwc:else>
+                                        <div class="ms-lookup__input-wrap">
+                                            <lightning-icon icon-name="utility:search" size="x-small" class="ms-lookup__search-icon"></lightning-icon>
+                                            <input
+                                                type="text"
+                                                value={lookupSearchKey}
+                                                onchange={handleLookupSearch}
+                                                onfocus={handleLookupFocus}
+                                                onblur={handleLookupBlur}
+                                                placeholder="Search Contacts or Leads..."
+                                                class="ms-lookup__input">
+                                        </div>
+                                        <template lwc:if={showLookupDropdown}>
+                                            <div class="ms-lookup__dropdown" role="listbox">
+                                                <template lwc:if={isLookupLoading}>
+                                                    <div class="ms-lookup__loading">
+                                                        <lightning-spinner alternative-text="Loading" size="small"></lightning-spinner>
+                                                    </div>
+                                                </template>
+                                                <template lwc:if={hasSearchResults}>
+                                                    <template for:each={lookupSearchResults} for:item="result">
+                                                        <div key={result.id}
+                                                             data-id={result.id}
+                                                             onclick={handleLookupSelect}
+                                                             class="ms-lookup__result"
+                                                             role="option">
+                                                            <div class="ms-lookup__result-icon">
+                                                                <lightning-icon icon-name={result.icon} size="small"></lightning-icon>
+                                                            </div>
+                                                            <div class="ms-lookup__result-text">
+                                                                <div class="ms-lookup__result-title">{result.title}</div>
+                                                                <div class="ms-lookup__result-subtitle">{result.subtitle}</div>
+                                                            </div>
+                                                        </div>
+                                                    </template>
+                                                </template>
+                                                <template lwc:if={noResultsFound}>
+                                                    <div class="ms-lookup__empty">
+                                                        <lightning-icon icon-name="utility:info" size="x-small"></lightning-icon>
+                                                        <span>No results found</span>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </template>
+                                    </template>
+                                </div>
+                            </div>
+
+                            <!-- Consent section -->
+                            <div class="ms-consent-wrap">
+                                <div class="ms-divider ms-divider--labeled">
+                                    <span class="ms-divider__line"></span>
+                                    <span class="ms-divider__text">Recording Consent</span>
+                                    <span class="ms-divider__line"></span>
+                                </div>
+                                <div class={consentCardClass} onclick={toggleConsent}>
+                                    <div class={checkboxClass}>
+                                        <template if:true={isChecked}>
+                                            <lightning-icon icon-name="utility:check" size="xx-small" class="ms-check-icon"></lightning-icon>
+                                        </template>
+                                    </div>
+                                    <div class="ms-consent__text">
+                                        <p class="ms-consent__title">I confirm recording consent</p>
+                                        <p class="ms-consent__desc">
+                                            All participants have been informed and agree to this
+                                            meeting being recorded and transcribed.
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="ms-start-btn" onclick={startRecording}>{label.StartMeetingBtn}</div>
+                            </div>
+
+                        </template>
+                    </template>
+                </div>
+            </template>
+
+            <!-- Connecting state -->
+            <template lwc:if={isConnecting}>
+                <div class="ms-card ms-card--status">
+                    <div class="ms-card__heading">{label.ConnectingTitle}</div>
+                </div>
+            </template>
+
+            <!-- Live transcript -->
+            <template lwc:if={isRecordingStarted}>
+                <div class="ms-card ms-card--transcript">
+                    <div class="ms-section-label">{label.LiveTranscriptTitle}</div>
+                    <div class="ms-transcript-body">{transcription}</div>
+                </div>
+            </template>
+
+            <!-- Summary / MOM screen -->
+            <template lwc:if={isSummaryDone}>
+                <div class="ms-card ms-card--summary">
+
+                    <!-- Title -->
+                    <div class="ms-section-label">
+                        {label.CallTitleLabel}
+                        <img class="ms-edit-icon" onclick={handleEditChange} src={penIconUrl} alt="edit">
+                    </div>
+                    <div class="ms-summary-body">
+                        <template lwc:if={isEditing}>
+                            <lightning-input label="Edit Title" value={callTitle} onchange={handleTitleChange}></lightning-input>
+                        </template>
+                        <template lwc:else>
+                            <div>{callTitle}</div>
+                        </template>
+                    </div>
+
+                    <!-- Meeting minutes -->
+                    <div class="ms-section-label">{label.SummaryLabel}</div>
+                    <template lwc:if={isEditing}>
+                        <div class="ms-summary-body">
+                            <lightning-input-rich-text value={meetingSummary} onchange={handleSummaryChange}></lightning-input-rich-text>
+                        </div>
+                        <lightning-button label="Save" onclick={handleSave} class="slds-m-top_small"></lightning-button>
+                        <lightning-button variant="destructive" label="Cancel" onclick={cancelEdit} class="slds-m-left_small"></lightning-button>
+                    </template>
+                    <template lwc:else>
+                        <div class="ms-summary-body">
+                            <lightning-formatted-rich-text value={meetingSummary}></lightning-formatted-rich-text>
+                        </div>
+                    </template>
+
+                    <!-- Email recipients -->
+                    <div class="ms-section-label">{label.SendEmailLabel}</div>
+                    <lightning-input
+                        value={currentInput}
+                        onchange={handleInput}
+                        variant="label-hidden"
+                        onkeydown={handleKeyDown}
+                        placeholder="Type email and press , or Enter to add"
+                        class="ms-email-input">
+                    </lightning-input>
+                    <div class="ms-pills slds-m-bottom_small">
+                        <template for:each={emails} for:item="email">
+                            <lightning-pill label={email} onremove={handleRemove} key={email} name={email}></lightning-pill>
+                        </template>
+                    </div>
+                    <div class="ms-start-btn" onclick={sendMeetingEmail}>{label.SendEmailLabel}</div>
+                </div>
+            </template>
+
+            <!-- Processing / generating -->
+            <template lwc:if={isProcessing}>
+                <div class="ms-card ms-card--status">
+                    <div class="ms-processing-title">{label.GeneratingLabel}</div>
+                </div>
+            </template>
+
+        </div><!-- /ms-body -->
+
+    </div><!-- /ms-wrapper -->
+
+    <!-- Consent confirmation modal -->
+    <template if:true={showModal}>
+        <section role="dialog" tabindex="-1" aria-modal="true" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header slds-modal__header_empty">
+                    <h2 class="slds-text-heading_medium">{label.AppTitle}</h2>
+                    <button class="slds-button slds-button_icon slds-modal__close" title="Close" onclick={handleCancel}>
+                        <lightning-icon icon-name="utility:close" alternative-text="close" size="small"></lightning-icon>
+                    </button>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium">
+                    <slot name="body">
+                        <lightning-formatted-rich-text value={englishMessage}></lightning-formatted-rich-text>
+                        <lightning-formatted-rich-text value={hindiMessage}></lightning-formatted-rich-text>
+                    </slot>
+                </div>
+                <footer class="slds-modal__footer slds-grid slds-grid_align-end">
+                    <button class="slds-button slds-button_neutral" onclick={handleCancel}>Decline</button>
+                    <button class="slds-button ms-confirm-btn" onclick={handleConfirm}>Confirm</button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+</template>

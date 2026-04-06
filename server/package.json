@@ -1,0 +1,26 @@
+{
+  "name": "meetscribe-server",
+  "version": "1.0.0",
+  "description": "MeetScribe WebSocket server — real-time transcription and AI meeting minutes on AWS",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": ["aws", "transcribe", "bedrock", "claude", "salesforce", "websocket", "meeting-minutes"],
+  "license": "MIT",
+  "dependencies": {
+    "@aws-sdk/client-bedrock-runtime": "^3.0.0",
+    "@aws-sdk/client-s3": "^3.0.0",
+    "@aws-sdk/client-transcribe-streaming": "^3.0.0",
+    "@aws-sdk/credential-provider-node": "^3.0.0",
+    "dotenv": "^16.0.0",
+    "ws": "^8.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

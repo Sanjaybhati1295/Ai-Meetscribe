@@ -244,7 +244,7 @@ Pull requests are welcome. For major changes please open an issue first to discu
 
 ## 👤 Author
 
-Built by a Senior Software Engineer specialising in AWS + Salesforce integrations and GenAI application development.
+Built by Me, a Senior Software Engineer specialising in AWS + Salesforce integrations and GenAI application development.
 
 ---
 

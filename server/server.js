@@ -255,38 +255,38 @@ async function generateMeetingMinutes(transcript) {
   const currentDateTime = date.toLocaleString();
 
   const prompt = `You are a professional executive assistant. Generate concise Meeting Minutes from the call transcript below.
-Return ONLY a valid JSON object with exactly two keys:
-{
-  "title": "Brief, specific title describing this call (e.g., 'Q2 Sales Review – April 3, 2025')",
-  "mom": "<HTML string>"
-}
-
-The "mom" HTML must follow this structure in order:
-<br><h4>Summary</h4>
-<p>2–3 sentences covering what was discussed and the outcome.</p>
-
-<h4>Discussion Points</h4>
-<ul><li>Concise point</li></ul>
-
-<h4>Action Items</h4>
-<table style="width:100%;border-collapse:collapse;">
-  <tr style="background:#f5f5f5;">
-    <th style="padding:8px;border:1px solid #ddd;text-align:left;">Task</th>
-    <th style="padding:8px;border:1px solid #ddd;text-align:left;">Owner</th>
-    <th style="padding:8px;border:1px solid #ddd;text-align:left;">Deadline</th>
-  </tr>
-</table>
-<!-- If none: <p><em>No action items identified.</em></p> -->
-
-<p style="margin-top:16px;color:#888;font-size:0.85em;">Generated: ${currentDateTime}</p>
-
-Rules:
-- Write in English. Translate any non-English content.
-- Be concise — no filler words, no repetition.
-- Output ONLY the JSON object. No extra text, no markdown fences.
-
-Transcript:
-${JSON.stringify(transcript)}`;
+  Return ONLY a valid JSON object with exactly two keys:
+  {
+    "title": "Brief, specific title describing this call (e.g., 'Q2 Sales Review – April 3, 2025')",
+    "mom": "<HTML string>"
+  }
+  
+  The "mom" HTML must follow this structure in order:
+  <br><h4>Summary</h4>
+  <p>2–3 sentences covering what was discussed and the outcome.</p>
+  
+  <h4>Discussion Points</h4>
+  <ul><li>Concise point</li></ul>
+  
+  <h4>Action Items</h4>
+  <table style="width:100%;border-collapse:collapse;">
+    <tr style="background:#f5f5f5;">
+      <th style="padding:8px;border:1px solid #ddd;text-align:left;">Task</th>
+      <th style="padding:8px;border:1px solid #ddd;text-align:left;">Owner</th>
+      <th style="padding:8px;border:1px solid #ddd;text-align:left;">Deadline</th>
+    </tr>
+  </table>
+  <!-- If none: <p><em>No action items identified.</em></p> -->
+  
+  <p style="margin-top:16px;color:#888;font-size:0.85em;">Generated: ${currentDateTime}</p>
+  
+  Rules:
+  - Write in English. Translate any non-English content.
+  - Be concise — no filler words, no repetition.
+  - Output ONLY the JSON object. No extra text, no markdown fences.
+  
+  Transcript:
+  ${JSON.stringify(transcript)}`;
 
   return callClaude(prompt, { maxTokens: 3000, temperature: 0.2 });
 }

@@ -13,11 +13,6 @@ public with sharing class MeetScribeController {
     @TestVisible
     private static Boolean forceException = false;
 
-    /**
-     * Created By : Sanjay Bhati
-     * Date : Feb 2025
-     * Description : This method is used to create Meeting record.
-    **/
     @AuraEnabled
     public static Id createMeetingRecord(Map<String, Object> meetingData) {
         try {
@@ -45,11 +40,6 @@ public with sharing class MeetScribeController {
         }
     }
     
-    /**
-     * Created By : Sanjay Bhati
-     * Date : Feb 2025
-     * Description : This method is used to create task for Meeting record.
-    **/
     private static Id createTaskRecord(Map<String, Object> meetingData) {
         validateTaskCreateAccess();
         
@@ -64,11 +54,6 @@ public with sharing class MeetScribeController {
         return taskRecord.Id;
     }
     
-    /**
-     * Created By : Sanjay Bhati
-     * Date : Feb 2025
-     * Description : This method is used to send email.
-    **/
     @AuraEnabled
     public static void sendEmail(Id recordId, List<String> emailAddresses, String subject, String meetingSummary) {
         if (emailAddresses == null || emailAddresses.isEmpty()) {
@@ -89,11 +74,7 @@ public with sharing class MeetScribeController {
         }
     }
     
-    /**
-     * Created By : Sanjay Bhati
-     * Date : Feb 2025
-     * Description : This method is used to get CosmoConnect log history for login user.
-    **/
+
     @AuraEnabled(cacheable=true)
     public static List<GenAi_Logging__c> getLogsByOwner() {
         try {
@@ -115,11 +96,6 @@ public with sharing class MeetScribeController {
         }
     }
     
-    /**
-     * Created By : Sanjay Bhati
-     * Date : Feb 2025
-     * Description : This method is used to get recording url for cosmoConnect meeting.
-    **/
     @AuraEnabled(cacheable=true)
     public static String getAudioUrl(String callRecordingId) {
         try {
@@ -137,12 +113,6 @@ public with sharing class MeetScribeController {
         }
     }
     
-    /**
-     * Created By : Sanjay Bhati
-     * Date : Feb 2025
-     * Description : This method is used to search lead/contact 
-     * 				 to connect CosmoConnect record.
-    **/
     @AuraEnabled(cacheable=true)
     public static List<LookupSearchResult> searchContactsAndLeads(String searchKey) {
         try {
@@ -161,12 +131,6 @@ public with sharing class MeetScribeController {
         }
     }
     
-	/**
-     * Created By : Sanjay Bhati
-     * Date : Feb 2025
-     * Description : This method is used to check GenAi Logging 
-     * 				 object create access.
-    **/
     private static void validateGenAiCreateAccess() {
         if (!Schema.sObjectType.GenAi_Logging__c.isCreateable()) {
             throw Utilities.auraHandledExceptionCustom('Insufficient access to create GenAi_Logging__c.');
@@ -179,22 +143,12 @@ public with sharing class MeetScribeController {
         
     }
     
-    /**
-     * Created By : Sanjay Bhati
-     * Date : Feb 2025
-     * Description : This method is used to check task create access.
-    **/
     private static void validateTaskCreateAccess() {
         if (!Schema.sObjectType.Task.isCreateable()) {
             throw Utilities.auraHandledExceptionCustom('Insufficient access to create Task.');
         }
     }
     
-    /**
-     * Created By : Sanjay Bhati
-     * Date : Feb 2025
-     * Description : This method is used parse the meeting data with wrapper.
-    **/
     private static MeetingTimeWrapper parseMeetingTimes(Map<String, Object> meetingData) {
         MeetingTimeWrapper wrapper = new MeetingTimeWrapper();
         
@@ -212,11 +166,6 @@ public with sharing class MeetScribeController {
         return wrapper;
     }
     
-    /**
-     * Created By : Sanjay Bhati
-     * Date : Feb 2025
-     * Description : This method is used to map Gen Ai record data.
-    **/
     private static GenAi_Logging__c buildGenAiRecord(Map<String, Object> meetingData, Id recordTypeId, Id taskRecordId) {
         return new GenAi_Logging__c(
             Session_Title__c = (String) meetingData.get('meetingTitle'),
@@ -229,11 +178,6 @@ public with sharing class MeetScribeController {
         );
     }
     
-    /**
-     * Created By : Sanjay Bhati
-     * Date : Feb 2025
-     * Description : This method is used to map task record data.
-    **/
     private static Task buildTaskRecord(Id recordTypeId, Id participantId, MeetingTimeWrapper timeWrapper, String meetingId) {
         return new Task(
             RecordTypeId = recordTypeId,
@@ -250,11 +194,6 @@ public with sharing class MeetScribeController {
         );
     }
     
-    /**
-     * Created By : Sanjay Bhati
-     * Date : Feb 2025
-     * Description : This method is used to insert the object records.
-    **/
     private static void insertRecord(SObject record, String methodName) {
         Database.SaveResult saveResult = Database.insert(record, AccessLevel.USER_MODE);
         
@@ -266,11 +205,6 @@ public with sharing class MeetScribeController {
         }
     }
     
-    /**
-     * Created By : Sanjay Bhati
-     * Date : Feb 2025
-     * Description : This method is used to send email to recipients.
-    **/
     private static void sendEmailMessage(List<String> recipients, String subject, String htmlBody, OrgWideEmailAddress orgWideEmail) {
         Messaging.SingleEmailMessage emailMessage = new Messaging.SingleEmailMessage();
         emailMessage.setToAddresses(new List<String>(recipients));
@@ -293,12 +227,7 @@ public with sharing class MeetScribeController {
             }
         }
     }
-
-	/**
-     * Created By : Sanjay Bhati
-     * Date : Feb 2025
-     * Description : This method is used to update email address in GenAi record.
-    **/    
+   
     private static void updateEmailRecord(Id recordId, List<String> emailAddresses, 
                                           String callTitle, String callSummary) {
         String emailList = String.join(emailAddresses, ',');
@@ -319,11 +248,6 @@ public with sharing class MeetScribeController {
         }
     }
     
-    /**
-     * Created By : Sanjay Bhati
-     * Date : Feb 2025
-     * Description : This method is used to search contact record with key.
-    **/  
     private static List<LookupSearchResult> searchContacts(String searchKey) {
         List<LookupSearchResult> results = new List<LookupSearchResult>();
         List<Contact> contacts = [
@@ -342,11 +266,6 @@ public with sharing class MeetScribeController {
         return results;
     }
     
-    /**
-     * Created By : Sanjay Bhati
-     * Date : Feb 2025
-     * Description : This method is used to search lead record with key.
-    **/  
     private static List<LookupSearchResult> searchLeads(String searchKey) {
         List<LookupSearchResult> results = new List<LookupSearchResult>();
         List<Lead> leads = [SELECT Id, Email, Phone, FirstName, LastName, Company
@@ -363,11 +282,6 @@ public with sharing class MeetScribeController {
         return results;
     }
     
-    /**
-     * Created By : Sanjay Bhati
-     * Date : Feb 2025
-     * Description : This method is used build Contact Subtitle.
-    **/ 
     private static String buildContactSubtitle(Contact con) {
         String subtitle = '';
         if (String.isNotBlank(con.Account?.Name)) {
@@ -379,11 +293,6 @@ public with sharing class MeetScribeController {
         return subtitle;
     }
     
-    /**
-     * Created By : Sanjay Bhati
-     * Date : Feb 2025
-     * Description : This method is used build Lead Subtitle.
-    **/ 
     private static String buildLeadSubtitle(Lead ld) {
         String subtitle = '';
         if (String.isNotBlank(ld.Company)) {
@@ -395,11 +304,6 @@ public with sharing class MeetScribeController {
         return subtitle;
     }
     
-    /**
-     * Created By : Sanjay Bhati
-     * Date : Feb 2025
-     * Description : This method is used build full name for search term.
-    **/
     private static String buildFullName(String firstName, String lastName) {
         String fullName = '';
         if (String.isNotBlank(firstName)) {
@@ -411,11 +315,6 @@ public with sharing class MeetScribeController {
         return fullName;
     }
     
-    /**
-     * Created By : Sanjay Bhati
-     * Date : Feb 2025
-     * Description : This method is used to get account id from selected contact.
-    **/
     private static Id getAccountIdFromParticipant(Id participantId) {
         if (participantId == null) {
             return null;
@@ -437,11 +336,6 @@ public with sharing class MeetScribeController {
         }
     }
     
-    /**
-     * Created By : Sanjay Bhati
-     * Date : Feb 2025
-     * Description : This method is used to store log record and throw exception.
-    **/
     private static void logAndThrowException(Exception ex, String methodName) {
         Log__c logInstance = new Log__c(
             Process_Name__c = PROCESS_NAME,
@@ -451,21 +345,11 @@ public with sharing class MeetScribeController {
         throw Utilities.auraHandledExceptionCustom(ex.getMessage());
     }
     
-    /**
-     * Created By : Sanjay Bhati
-     * Date : Feb 2025
-     * Description : This is wrapper class for MeetingTime.
-    **/
     private class MeetingTimeWrapper {
         public Datetime startTime { get; set; }
         public Datetime endTime { get; set; }
     }
     
-    /**
-     * Created By : Sanjay Bhati
-     * Date : Feb 2025
-     * Description : This is wrapper class for lookup search.
-    **/
     public class LookupSearchResult {
         @AuraEnabled public String id { get; set; }
         @AuraEnabled public String sObjectType { get; set; }
